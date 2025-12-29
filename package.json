@@ -1,0 +1,24 @@
+{
+  "name": "dndgridgame",
+  "version": "1.0.0",
+  "description": "D&D Grid Game with AI",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "server": "node server.js",
+    "build": "electron-builder"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "finalhandler": "^2.1.1",
+    "serve-static": "^2.2.1"
+  },
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12"
+  }
+}
