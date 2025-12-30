@@ -218,32 +218,75 @@ body {
     box-shadow: 0 0 12px #0f0;
 }
 
-/* Main Text Chat - Top Right */
+/* Main Text Chat - Full Right Vertical Sidebar */
+/* Main Text Chat - Full Right Vertical Sidebar */
 #rightPanel {
     position: fixed;
-    top: 1vh;
-    right: 1vw;
-    z-index: 15;
-    width: clamp(280px, 35vw, 500px);
+    top: 0;
+    right: 0;
+    bottom: clamp(70px, 12vh, 100px);
+    width: clamp(300px, 35vw, 450px);
     max-width: 96vw;
+    z-index: 20;
+    overflow: hidden;
+    transition: opacity 0.4s ease;
+    opacity: 1;
+}
+
+#rightPanel.minimized {
+    top: 10px;
+    right: 10px;
+    bottom: auto;
+    width: 300px;
+    height: 60px;
+    border: 2px solid #0f0;
+    background: rgba(0, 0, 0, 0.9);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+}
+
+#rightPanel.minimized #chatContainer {
+    height: 100%;
+    padding: 10px;
+    overflow: hidden;
+}
+
+#rightPanel.minimized #chatMessages {
+    display: none;
+}
+
+#rightPanel.minimized #chatInputArea {
+    display: none;
+}
+
+#rightPanel.minimized h4 {
+    margin: 0;
+    text-align: center;
+    font-size: 16px;
 }
 
 #chatContainer {
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    border: 2px solid #0f0;
-    border-radius: 12px;
-    padding: clamp(10px, 1.8vh, 20px);
+    background: rgba(0, 0, 0, 0.9);
+    border-left: 2px solid #0f0;
+    padding: clamp(12px, 2vh, 20px);
     box-sizing: border-box;
     font-family: 'Courier New', monospace;
     color: #0f0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    max-height: 45vh;
 }
 
+/* Ensure active panels appear above hidden chat */
+#assetsPanel.active,
+#dicePanel.active,
+#savePanelContainer.active,
+#characterGenPanel.active,
+#sceneGenPanel.active,
+#characterDetailsPanel.active {
+    z-index: 35;
+}
 /* Chat Content - Base styles */
 #chatContainer h4 {
     text-align: center;
@@ -496,10 +539,13 @@ body {
 
 /* Character Details Panel - base scaling (dynamic content) */
 #characterDetailsPanel {
-    overflow-x: hidden !important; /* Force no horizontal scroll */
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
+  overflow-x: hidden !important; /* Force no horizontal scroll */
+  overflow-y: auto;
+}
+
+#characterDetailsPanel.active {
+  display: flex;
+  flex-direction: column;
 }
 
 #characterDetailsPanel > div {
@@ -554,106 +600,18 @@ body {
     justify-content: center;
 }
 
-/* Mobile Responsive - Tablet (≤768px) */
-@media (max-width: 768px) {
-    #rightPanel {
-        width: clamp(220px, 40vw, 320px);
-        max-height: 35vh;
-    }
-
-    #chatContainer {
-        padding: clamp(6px, 1.2vh, 12px);
-        max-height: 35vh;
-    }
-
-    #assetsPanel, #dicePanel, #savePanelContainer, #uploadPanel, #characterGenPanel, #sceneGenPanel, #characterDetailsPanel {
-        width: clamp(220px, 70vw, 320px);
-        max-height: clamp(220px, 45vh, 350px);
-        bottom: clamp(50px, 8vh, 70px);
-        padding: clamp(8px, 1.4vh, 14px);
-    }
-
-    /* Character Details scaling on tablet */
-    #characterDetailsPanel input,
-    #characterDetailsPanel textarea {
-        font-size: clamp(11px, 1.5vw, 13px);
-        padding: clamp(5px, 0.8vh, 8px);
-    }
-
-    #characterDetailsPanel textarea {
-        height: clamp(50px, 9vh, 70px);
-    }
-
-    #characterDetailsPanel button {
-        font-size: clamp(11px, 1.5vw, 13px);
-        padding: clamp(5px, 0.8vh, 8px) clamp(10px, 1.8vw, 16px);
-    }
-
-    #characterDetailsPanel img {
-        width: clamp(100px, 25vw, 160px);
-        height: clamp(100px, 25vw, 160px);
-    }
-
-    #characterDetailsPanel h3 {
-        font-size: clamp(14px, 1.9vw, 17px);
-    }
+/* Fade chat when any other panel is open */
+#characterGenPanel.active ~ #rightPanel,
+#sceneGenPanel.active ~ #rightPanel,
+#assetsPanel.active ~ #rightPanel,
+#dicePanel.active ~ #rightPanel,
+#savePanelContainer.active ~ #rightPanel,
+#characterDetailsPanel.active ~ #rightPanel {
+    opacity: 0.3;
+    pointer-events: none;
 }
 
-/* Mobile Responsive - Phone (≤480px) */
-@media (max-width: 480px) {
-    .sidebar-btn {
-        flex: 1 1 clamp(55px, 16vw, 75px);
-        min-width: clamp(50px, 14vw, 65px);
-        font-size: clamp(10px, 2.3vw, 12px);
-        padding: clamp(5px, 1vh, 10px) clamp(6px, 1.4vw, 14px);
-    }
-
-    #rightPanel {
-        width: clamp(180px, 90vw, 280px);
-        max-height: 30vh;
-    }
-
-    #chatContainer {
-        padding: clamp(5px, 1vh, 10px);
-        max-height: 30vh;
-    }
-
-    #assetsPanel, #dicePanel, #savePanelContainer, #uploadPanel, #characterGenPanel, #sceneGenPanel, #characterDetailsPanel {
-        width: clamp(160px, 92vw, 260px);
-        max-height: clamp(160px, 35vh, 240px);
-        bottom: clamp(40px, 6vh, 50px);
-        padding: clamp(5px, 1vh, 10px);
-    }
-
-    /* Character Details scaling on phone */
-    #characterDetailsPanel input,
-    #characterDetailsPanel textarea {
-        font-size: clamp(10px, 1.4vw, 12px);
-        padding: clamp(4px, 0.6vh, 6px);
-    }
-
-    #characterDetailsPanel textarea {
-        height: clamp(40px, 8vh, 60px);
-    }
-
-    #characterDetailsPanel button {
-        font-size: clamp(10px, 1.4vw, 12px);
-        padding: clamp(4px, 0.6vh, 6px) clamp(8px, 1.5vw, 12px);
-    }
-
-    #characterDetailsPanel img {
-        width: clamp(80px, 22vw, 120px);
-        height: clamp(80px, 22vw, 120px);
-    }
-
-    #characterDetailsPanel h3 {
-        font-size: clamp(13px, 1.8vw, 16px);
-    }
-
-    /* Force ability score pairs to stack vertically on very small phones only */
-    @media (max-width: 360px) {
-        #characterDetailsPanel .character-field-row {
-            flex-direction: column !important;
-        }
-    }
+/* Ensure chat returns to full opacity when no other panel is active */
+#rightPanel {
+    pointer-events: auto;
 }

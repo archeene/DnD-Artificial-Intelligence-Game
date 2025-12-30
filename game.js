@@ -35,6 +35,7 @@ let questLog = localStorage.getItem('dndGridQuestLog') || ''; // Persistent ques
 const QUEST_LOG_KEY = 'dndGridQuestLog';
 
 function resizeCanvas() {
+
   const size = Math.min(window.innerWidth, window.innerHeight * 0.9);
   canvas.width = size;
   canvas.height = size;
@@ -783,6 +784,7 @@ function showCharacterDetailsPanel(unit) {
 
   panel.appendChild(container);
   panel.classList.add('active');
+  fadeChatPanel();
 }
 
 function hideCharacterDetailsPanel() {
@@ -792,6 +794,12 @@ function hideCharacterDetailsPanel() {
     panel.innerHTML = '';
   }
   selectedUnit = null;
+  // Restore chat visibility
+  const rightPanel = document.getElementById('rightPanel');
+  if (rightPanel) {
+    rightPanel.style.opacity = '1';
+    rightPanel.style.pointerEvents = 'auto';
+  }
 }
 
 function hideAllPanels() {
@@ -801,7 +809,8 @@ function hideAllPanels() {
     'assetsPanel',
     'dicePanel',
     'savePanelContainer',
-    'characterDetailsPanel'
+    'characterDetailsPanel',
+    'uploadPanel'
   ];
   panels.forEach(id => {
     const p = document.getElementById(id);
@@ -812,6 +821,20 @@ function hideAllPanels() {
       }
     }
   });
+  // Restore chat visibility
+  const rightPanel = document.getElementById('rightPanel');
+  if (rightPanel) {
+    rightPanel.style.opacity = '1';
+    rightPanel.style.pointerEvents = 'auto';
+  }
+}
+
+function fadeChatPanel() {
+  const rightPanel = document.getElementById('rightPanel');
+  if (rightPanel) {
+    rightPanel.style.opacity = '0.3';
+    rightPanel.style.pointerEvents = 'none';
+  }
 }
 
 function populateLeftBox() {
@@ -1272,12 +1295,15 @@ function createChatBox() {
       alertStyled('No recent DM description found.');
       return;
     }
-
-    // Succinct summary: first 3 sentences
-    let summary = lastDmText.split('.').slice(0, 3).join('.').trim();
-    if (!summary.endsWith('.')) summary += '.';
-    summary = summary.charAt(0).toUpperCase() + summary.slice(1);
-
+    const words = lastDmText.toLowerCase().match(/\b[a-z]{4,}\b/g) || [];
+    const uniqueWords = [...new Set(words)].slice(0, 5);
+    const keywords = uniqueWords.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    let summary = `Map of ${keywords}`;
+    const sentences = lastDmText.trim().split(/(?<=\.)\s+/);
+    const firstTwoSentences = sentences.slice(0, 2).join(' ').trim();
+    if (firstTwoSentences) {
+      summary = `Map of ${firstTwoSentences}`;
+    }
     // Open Scene Generator panel
     const sceneGenBtn = document.getElementById('btnSceneGen');
     if (sceneGenBtn) sceneGenBtn.click();
@@ -1308,10 +1334,12 @@ function createChatBox() {
                   setTimeout(() => {
                     const newIcon = document.querySelector(`#sceneryRow img[src="${latestImg.src}"]`);
                     if (newIcon) newIcon.click();
-                  }, 200);
 
-                  clearInterval(checkInterval);
-                  generateImage = originalGenerate;
+                    // Automatically analyze the newly applied scene with vision AI
+                    setTimeout(analyzeSceneWithVision, 1000);
+                  }, 200);
+      clearInterval(checkInterval);
+      generateImage = originalGenerate;
                 }
               }
             }, 500);
@@ -1527,7 +1555,62 @@ async function sendChatMessage() {
     addChatMessage('assistant', 'Error: No response from AI. Check console (F12).');
   }
 }
+function analyzeSceneWithVision() {
+  const base64DataUrl = canvas.toDataURL('image/png');
+  const base64 = base64DataUrl.split(',')[1];
 
+  const visionMessages = [
+    {
+      role: "system",
+      content: "This is a Dungeons & Dragons map. Summarize the image focusing on paths, doors, buildings, and objects that characters can interact with. Provide a concise but detailed description of the visible environment suitable for a Dungeon Master to reference during play. Include atmosphere, terrain, notable landmarks, and interactive elements. Limit to 2-3 paragraphs."
+    },
+    {
+      role: "user",
+      content: [
+        {
+          type: "text",
+          text: "Describe this pixel-art RPG scene in detail, emphasizing interactive elements for use as a Dungeon Master reference of the current location."
+        },
+        {
+          type: "image_url",
+          image_url: {
+            url: `data:image/png;base64,${base64}`
+          }
+        }
+      ]
+    }
+  ];
+
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'mistral-31-24b',
+      messages: visionMessages,
+      temperature: 0.7,
+      max_tokens: 1024
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      const description = data.choices[0].message.content.trim();
+
+      const now = new Date();
+      const timestamp = now.toLocaleString();
+
+      questLog += `\n\n--- Scene Description Generated ${timestamp} ---\n${description}`;
+
+      localStorage.setItem(QUEST_LOG_KEY, questLog);
+
+      alertStyled('Scene analyzed and description added to Quest Log!');
+    }
+  })
+  .catch(err => {
+    console.error('Vision analysis failed:', err);
+    alertStyled('Failed to analyze scene. Check console.');
+  });
+}
 function requestQuestRecap() {
   const overlay = document.createElement('div');
   overlay.style.position = 'fixed';
@@ -1895,11 +1978,15 @@ async function generateImage(type) {
   input.value = '';
   const systemPrompt = document.getElementById(promptId).value.trim();
 
-  // FIX: For scenes, send user prompt only (matches working character behavior more closely)
-  // System prompt remains in textarea for reference but is not concatenated
-  const fullPrompt = type === 'character' 
-    ? userPrompt + (systemPrompt ? ", " + systemPrompt : "")
-    : userPrompt;
+  let fullPrompt;
+  if (type === 'character') {
+    // Characters: full system prompt is safe (shorter)
+    fullPrompt = userPrompt + (systemPrompt ? ", " + systemPrompt : "");
+  } else {
+    // Scenes: use concise, high-impact style instructions to stay under API prompt limit (proven working)
+    const conciseSceneStyle = "pixel art, classic RPG Maker VX Ace style, strict 45-degree isometric diamond-tile top-down view, 16-bit SNES RPG aesthetic like Chrono Trigger, limited palette, heavy dithering and pillow shading, tile-based alignment, buildings with roofs removed to show detailed interiors, expansive maps suitable for character exploration";
+    fullPrompt = userPrompt + ", " + conciseSceneStyle;
+  }
   try {
     // Generate appropriately sized images using your existing model (venice-sd35 via proxy)
     // Characters: moderate square size for detailed sprites
@@ -1978,7 +2065,6 @@ function saveGeneratedImage(imageUrl, type) {
     alertStyled('Save failed: Storage full or error. Clear some assets and try again.');
   }
 }
-
 function setupSidebar() {
   const map = {
     btnCharacterGen: 'characterGenPanel',
@@ -1995,16 +2081,20 @@ function setupSidebar() {
         selectedUnit = null;
         hideCharacterDetailsPanel();
         draw();
-
         btn.classList.add('flash');
         setTimeout(() => btn.classList.remove('flash'), 300);
 
         const targetId = map[id];
         const target = document.getElementById(targetId);
-
         if (target && target.classList.contains('active')) {
           target.classList.remove('active');
           btn.classList.remove('active');
+          // Restore chat visibility when closing panel
+          const rightPanel = document.getElementById('rightPanel');
+          if (rightPanel) {
+            rightPanel.style.opacity = '1';
+            rightPanel.style.pointerEvents = 'auto';
+          }
         } else {
           hideAllPanels();
           Object.keys(map).forEach(otherId => {
@@ -2014,9 +2104,13 @@ function setupSidebar() {
           if (target) {
             target.classList.add('active');
             btn.classList.add('active');
-            if (targetId === 'savePanelContainer') {
+            if (targetId === 'dicePanel') {
+              createDiceRoller();
+            } else if (targetId === 'savePanelContainer') {
               createSavePanel();
             }
+            // Fade chat when opening panel
+            fadeChatPanel();
           }
         }
       };
@@ -2273,7 +2367,7 @@ function startQuestGeneration() {
 
   // Prompt that asks all 3 questions in one message and generates the full campaign in chat
   const questGenerationPrompt = `IDENTITY & PURPOSE
-You are an expert Dungeon Master and campaign architect specializing in Dungeons & Dragons 4th Edition. You serve as both a creative storyteller and a tactical encounter designer. Your function is to guide the user through the complete creation of playable, three-act adventure campaigns that are narratively compelling, mechanically balanced, and immediately usable at the table.
+You are an expert Dungeon Master and campaign architect specializing in Dungeons & Dragons 4th Edition. Hard line breaks for clean formatting, 2 paragraphs max per visible response. Visible responses all must be succinct. You serve as both a creative storyteller and a tactical encounter designer. Your function is to guide the user through the complete creation of playable, three-act adventure campaigns that are narratively compelling, mechanically balanced, and immediately usable at the table.
 You will generate all content a Dungeon Master needs to run the campaign: boxed read-aloud text, DM-only notes, stat blocks, skill challenge frameworks, tactical maps descriptions, NPC motivations, treasure parcels, and dramatic story beats.
 EXTERNAL DOCUMENT REFERENCES
 Before generating any campaign content, you must check for and integrate information from the following supplementary system prompts if they exist in your context:
@@ -2283,7 +2377,8 @@ Identify opportunities to resolve dangling plot threads or advance existing stor
 Note any recurring NPCs, factions, or locations that could appear
 PHASE 1: INFORMATION GATHERING
 The user will answer all three questions in one reply.
-Ask all three questions in a single message:
+Ask al
+l three questions in a single message:
 1. How many player characters are in the party, and what is their average level?
 2. Briefly describe the party members (class, race, key backstory elements).
 3. What tone do you prefer? Options: Heroic, Gritty, Comedic, Horror, Intrigue.
@@ -2433,4 +2528,5 @@ I will generate the complete campaign. It takes a few minutes, so create your ch
       }, 800);
     }
   };
-}
+
+      }

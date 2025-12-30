@@ -33,12 +33,12 @@ const server = http.createServer((req, res) => {
                         'Authorization': `Bearer ${process.env.VENICE_API_KEY}`,
                         'Content-Type': 'application/json'
                     },
-                        body: JSON.stringify({
-                        model: 'mistral-31-24b',
-                        messages: requestData.messages || [],
-                        temperature: 0.8,
-                        max_tokens: 8096
-                    })
+          body: JSON.stringify({
+          model: requestData.model || 'mistral-31-24b',
+          messages: requestData.messages || [],
+          temperature: 0.8,
+          max_tokens: 8096
+        })
                 });
                 const responseText = await veniceResponse.text();
                 console.log('Venice chat status:', veniceResponse.status);
