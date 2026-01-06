@@ -1,0 +1,87 @@
+Project OverviewWe built a browser-based D&D virtual tabletop featuring:32x32 pixel grid canvas for map and character placement
+Asset library with upload/remove for characters and scenes
+Dice roller
+Full save/load system (including stats and prompts)
+AI text chat with Venice AI as Dungeon Master
+AI image generation for pixel art assets
+Character stats panel (HP/AC/SPECIAL) that appears on selection
+Persistent custom system prompts for both chats
+
+Section 1: Core Architecture Review1.1 HTML Structure (index.html)Single <canvas> for the grid
+Left sidebar with toggle buttons for panels
+Four side panels (upload, assets, dice, save)
+Two right-side chat containers (main text chat + image generation)
+
+Key Lesson: Minimal HTML — all dynamic content created in JS. This keeps the markup clean and allows runtime flexibility.1.2 CSS (style.css)Terminal green-on-black aesthetic
+Glowing button effects with transitions
+Fixed positioning for overlays
+Flex column layout for chats with critical min-height: 0 !important
+
+Critical Lesson Learned: The chat expansion bug was a classic flexbox issue — min-height: auto default forces content size. The fix min-height: 0 !important on the scrolling child enables proper overflow.1.3 JavaScript (game.js) – Main ComponentsCanvas & Grid SystemConstants: TILE_SIZE = 32, GRID_SIZE = 32
+resizeCanvas() centers and scales canvas responsively
+draw() clears and renders background + units with yellow selection highlight
+
+Asset ManagementFile uploads → FileReader → base64 strings
+Stored in arrays (characterAssets/sceneAssets) and localStorage
+populateLeftBox() dynamically creates thumbnails with remove buttons
+
+Save/Load SystemsaveState() serializes entire game state (map, units with stats, assets, prompts)
+loadStateFromData() restores everything on load
+updateSaveList() renders clickable save timestamps with rename/delete
+
+Key Lesson: Serialize everything needed to recreate state — including stats and prompts.Chat SystemscreateChatBox() – text DM chat with system prompt toggle
+createImageGenChat() – image generation with system prompt toggle and dual save buttons
+
+Character Stats PanelcreateStatsPanel() – bottom-left panel created once
+show/hideStatsPanel() – triggered on canvas click when character selected
+saveStatsToSelectedUnit() – auto-saves on input change
+
+MovementArrow keys only (WASD removed as requested)
+
+Section 2: Problems Encountered & SolutionsProblem 1: Chat Box Expansion on Long RepliesCause: Flexbox min-height: auto default on scrolling child
+Solution: min-height: 0 !important on #chatMessages
+Lesson: Deep understanding of CSS spec is crucial — this is how all major chat apps (Discord, Slack) work.
+
+Problem 2: CSS/JS Changes Not ApplyingCause: Aggressive browser caching on local server
+Solutions Learned:Incognito mode
+Hard reload (Ctrl+Shift+R)
+Cache-busting query parameter
+Live Server extension
+
+Lesson: Local development caching is a common pain point — always have bypass strategies.
+
+Problem 3: Syntax Errors Breaking Entire AppMissing parentheses, misplaced braces
+Solution: Systematic code review, proper indentation
+Lesson: One syntax error stops script execution — test incrementally.
+
+Problem 4: Server ReferenceErrorCause: Endpoint code placed outside callback scope
+Solution: Keep all route handlers inside createServer callback
+Lesson: Scope matters in Node.js callbacks.
+
+Problem 5: Image Generation FailingCauses: Wrong endpoint, wrong model, wrong response parsing
+Solution: Use correct Venice endpoint /v1/image/generate, model 'fluently-xl', parse images[0]
+Lesson: API documentation changes — always verify current endpoints.
+
+Problem 6: Upload Buttons Stopped WorkingCause: JS errors prevented event listeners from attaching
+Solution: Fix syntax → script loads → listeners work
+Lesson: Never assume partial script execution.
+
+Section 3: Best Practices DemonstratedSingle Source of TruthselectedUnit controls stats panel visibility and content
+chatHistory drives conversation persistence
+
+Incremental DevelopmentAdd one feature at a time
+Test thoroughly
+Keep backups/revert when broken
+
+Error RecoveryRevert to last working state
+Use Git for version control
+Isolate new code
+
+Debugging StrategyCheck browser console first
+Use incognito to bypass cache
+Comment out new code to isolate issues
+
+Code OrganizationSeparate creation functions (createChatBox, createImageGenChat, createStatsPanel)
+Meaningful variable names
+Comment critical fixes
+
