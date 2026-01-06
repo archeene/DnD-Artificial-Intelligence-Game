@@ -3102,7 +3102,7 @@ let currentRoomCode = null;
 
 function initializeMultiplayer() {
   // Connect to Socket.io server
-  socket = io('http://localhost:8080');
+  socket = io('https://ai-dungeons-and-dragons.onrender.com');
 
   // Set up button handlers
   const btnHostGame = document.getElementById('btnHostGame');
@@ -3131,7 +3131,7 @@ function initializeMultiplayer() {
     btnLeaveGame.onclick = () => {
       if (socket) {
         socket.disconnect();
-        socket = io('http://localhost:8080');
+        socket = io('https://ai-dungeons-and-dragons.onrender.com');
         setupMultiplayerListeners();
         currentRoomCode = null;
         isMultiplayerConnected = false;
