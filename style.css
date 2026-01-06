@@ -1,0 +1,719 @@
+/* style.css - FULL UNABRIDGED - COMPLETE FINAL VERSION WITH ALL ORIGINAL RULES PRESERVED */
+/* Canvas top-left, chat top-right, popup panels far-right, buttons horizontal at bottom, full scaling */
+/* Character Details Panel now properly scales on small screens - no horizontal scroll, proportional reduction */
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+    color: #0f0;
+    height: 100vh;
+    width: 100vw;
+}
+
+#gameCanvas {
+    image-rendering: pixelated;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: none;
+    object-position: top left;
+    margin: 0;
+    z-index: 1;
+}
+
+/* Left Sidebar Buttons - permanently horizontal at bottom */
+#leftSidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(5px, 1vw, 10px);
+    justify-content: center;
+    padding: clamp(5px, 1vh, 10px);
+    background: rgba(0, 0, 0, 0.9);
+    border-top: 2px solid #0f0;
+    box-sizing: border-box;
+}
+
+.sidebar-btn {
+    background: #333;
+    color: #0f0;
+    border: 2px solid #0f0;
+    padding: clamp(8px, 1.5vh, 16px) clamp(12px, 2vw, 24px);
+    font-size: clamp(13px, 1.9vw, 17px);
+    cursor: pointer;
+    text-align: center;
+    flex: 1 1 clamp(80px, 15vw, 120px);
+    min-width: clamp(70px, 12vw, 100px);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    outline: none;
+    white-space: nowrap;
+}
+
+.sidebar-btn:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 15px #0f0;
+}
+
+.sidebar-btn.active {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 20px #0f0;
+    font-weight: bold;
+}
+
+/* Prevent any focus-related visual differences */
+.sidebar-btn:focus {
+    outline: none;
+    box-shadow: 0 0 20px #0f0; /* Match active state if focused */
+}
+
+/* All right-side panels (Assets, Dice, Save, Upload, Character, Scene, Details) */
+#assetsPanel, #dicePanel, #savePanelContainer, #uploadPanel, #characterGenPanel, #sceneGenPanel, #characterDetailsPanel, #multiplayerPanel {
+    position: fixed;
+    bottom: clamp(60px, 10vh, 80px);
+    right: clamp(10px, 2vw, 20px);
+    left: auto;
+    z-index: 25;
+    width: clamp(280px, 35vw, 450px);
+    max-width: calc(100vw - clamp(20px, 4vw, 40px));
+    max-height: clamp(300px, 60vh, 500px);
+    display: none;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #0f0;
+    border-radius: 12px;
+    padding: clamp(10px, 1.8vh, 20px);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
+    color: #0f0;
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+#assetsPanel.active, #dicePanel.active, #savePanelContainer.active, #uploadPanel.active, #characterGenPanel.active, #sceneGenPanel.active, #characterDetailsPanel.active, #multiplayerPanel.active {
+    display: block;
+}
+
+/* Upload panel buttons */
+#ui button {
+    background: #333;
+    color: #0f0;
+    border: 2px solid #0f0;
+    padding: clamp(8px, 1.2vh, 14px) clamp(12px, 2vw, 24px);
+    margin: 1vh 0;
+    cursor: pointer;
+    border-radius: 8px;
+    width: 100%;
+    font-size: clamp(13px, 1.8vw, 16px);
+    transition: all 0.3s ease;
+}
+
+#ui button:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 15px #0f0;
+}
+
+#info {
+    font-size: clamp(12px, 1.6vw, 14px);
+    color: #aaa;
+    margin-top: 1.5vh;
+}
+
+/* Asset icons */
+.asset-icon {
+    width: clamp(40px, 8vw, 64px);
+    height: clamp(40px, 8vw, 64px);
+    margin: 0.6vw;
+    cursor: pointer;
+    border: 2px solid #0f0;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.asset-icon:hover {
+    border-color: #ff0;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px #ff0;
+}
+
+/* Dice Roller */
+#diceResult {
+    font-size: clamp(26px, 5vw, 40px);
+    color: #ff0;
+    min-height: 8vh;
+    font-weight: bold;
+    margin-bottom: 2vh;
+    text-align: center;
+}
+
+/* Save Panel Buttons */
+#saveButton {
+    background: #333;
+    color: #0f0;
+    border: 2px solid #0f0;
+    padding: clamp(10px, 1.5vh, 16px) clamp(15px, 2vw, 25px);
+    margin: 1vh 0;
+    cursor: pointer;
+    border-radius: 8px;
+    width: 100%;
+    font-size: clamp(14px, 1.9vw, 17px);
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+#saveButton:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 20px #0f0;
+}
+
+#saveListItems button {
+    background: #333;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: clamp(8px, 1.2vh, 12px);
+    margin: 0.8vh 0;
+    cursor: pointer;
+    border-radius: 6px;
+    width: 100%;
+    font-size: clamp(13px, 1.8vw, 16px);
+    transition: all 0.3s ease;
+}
+
+#saveListItems button:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 12px #0f0;
+}
+
+.save-actions button {
+    background: #333;
+    color: #0f0;
+    border: 2px solid #0f0;
+    padding: clamp(6px, 1vh, 10px);
+    font-size: clamp(12px, 1.6vw, 14px);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    flex: 1;
+    margin: 0 0.5vw;
+}
+
+.save-actions button:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 12px #0f0;
+}
+
+/* Main Text Chat - Full Right Vertical Sidebar */
+/* Main Text Chat - Full Right Vertical Sidebar */
+#rightPanel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: clamp(70px, 12vh, 100px);
+    width: clamp(300px, 35vw, 450px);
+    max-width: 96vw;
+    z-index: 20;
+    overflow: hidden;
+    transition: opacity 0.4s ease;
+    opacity: 1;
+}
+
+#rightPanel.minimized {
+    top: 10px;
+    right: 10px;
+    bottom: auto;
+    width: 300px;
+    height: 60px;
+    border: 2px solid #0f0;
+    background: rgba(0, 0, 0, 0.9);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+}
+
+#rightPanel.minimized #chatContainer {
+    height: 100%;
+    padding: 10px;
+    overflow: hidden;
+}
+
+#rightPanel.minimized #chatMessages {
+    display: none;
+}
+
+#rightPanel.minimized #chatInputArea {
+    display: none;
+}
+
+#rightPanel.minimized h4 {
+    margin: 0;
+    text-align: center;
+    font-size: 16px;
+}
+
+#chatContainer {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    border-left: 2px solid #0f0;
+    padding: clamp(12px, 2vh, 20px);
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
+    color: #0f0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Ensure active panels appear above hidden chat */
+#assetsPanel.active,
+#dicePanel.active,
+#savePanelContainer.active,
+#characterGenPanel.active,
+#sceneGenPanel.active,
+#characterDetailsPanel.active,
+#multiplayerPanel.active {
+    z-index: 35;
+}
+/* Chat Content - Base styles */
+#chatContainer h4 {
+    text-align: center;
+    margin: 0 0 clamp(8px, 1.2vh, 12px) 0;
+    font-size: clamp(15px, 2vw, 19px);
+}
+
+#chatContainer > button {
+    width: 100%;
+    margin-bottom: clamp(6px, 1vh, 10px);
+    background: #333;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: clamp(5px, 0.8vh, 8px);
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: clamp(12px, 1.7vw, 15px);
+    transition: all 0.3s ease;
+}
+
+#chatContainer > button:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 12px #0f0;
+}
+
+#systemPromptArea {
+    display: none;
+    margin-bottom: clamp(6px, 1vh, 10px);
+}
+
+#systemPromptArea textarea {
+  width: 100%;
+  height: clamp(70px, 12vh, 100px);
+  padding: clamp(6px, 1vh, 8px);
+  background: #000;
+  color: #fff;
+  border: 1px solid #0f0;
+  border-radius: 5px;
+  resize: vertical;
+  font-family: 'Courier New', monospace;
+  font-size: clamp(12px, 1.5vw, 14px);
+}
+
+#chatMessages {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    margin-bottom: clamp(6px, 1vh, 10px);
+    padding: clamp(8px, 1.2vh, 12px);
+    background: #000;
+    border: 1px solid #0f0;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(4px, 0.8vh, 8px);
+}
+
+#chatMessages div {
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    max-width: 88%;
+    white-space: pre-wrap;
+    margin: 0;
+    padding: clamp(6px, 1vh, 10px);
+    border-radius: 10px;
+    font-size: clamp(12px, 1.5vw, 14px);
+}
+
+#chatMessages div.user {
+    background: #333;
+    color: #0f0;
+    align-self: flex-end;
+}
+
+#chatMessages div.assistant {
+  background: #000;
+  color: #fff;
+  align-self: flex-start;
+}
+
+#chatInputArea {
+    display: flex;
+    gap: clamp(6px, 1vw, 12px);
+}
+
+#chatInput {
+  flex: 1;
+  padding: clamp(8px, 1.2vh, 12px);
+  background: #000;
+  color: #fff;
+  border: 2px solid #0f0;
+  border-radius: 8px;
+  font-size: clamp(13px, 1.7vw, 16px);
+}
+
+#chatInput:focus {
+    outline: none;
+    box-shadow: 0 0 10px #0f0;
+}
+
+#chatSend {
+    padding: clamp(8px, 1.2vh, 12px) clamp(16px, 2.5vw, 28px);
+    background: #333;
+    color: #0f0;
+    border: 2px solid #0f0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: clamp(13px, 1.7vw, 16px);
+    transition: all 0.3s ease;
+}
+
+#chatSend:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 15px #0f0;
+}
+
+/* Generation Panels (Character and Scene) - shared styling */
+#characterGenContainer, #sceneGenContainer {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+}
+
+#characterGenContainer h4, #sceneGenContainer h4 {
+    text-align: center;
+    margin: 0 0 clamp(8px, 1.2vh, 12px) 0;
+    font-size: clamp(15px, 2vw, 19px);
+}
+
+#characterGenContainer > button, #sceneGenContainer > button {
+    width: 100%;
+    margin-bottom: clamp(6px, 1vh, 10px);
+    background: #333;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: clamp(5px, 0.8vh, 8px);
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: clamp(12px, 1.7vw, 15px);
+    transition: all 0.3s ease;
+}
+
+#characterGenContainer > button:hover, #sceneGenContainer > button:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 12px #0f0;
+}
+
+#characterPromptArea, #scenePromptArea {
+    display: none;
+    margin-bottom: clamp(6px, 1vh, 10px);
+}
+
+#characterPromptArea textarea, #scenePromptArea textarea {
+    width: 100%;
+    height: clamp(70px, 12vh, 100px);
+    padding: clamp(6px, 1vh, 8px);
+    background: #222;
+    color: #0f0;
+    border: 1px solid #0f0;
+    border-radius: 5px;
+    resize: vertical;
+    font-family: 'Courier New', monospace;
+    font-size: clamp(12px, 1.5vw, 14px);
+}
+
+#characterMessages, #sceneMessages {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    margin-bottom: clamp(6px, 1vh, 10px);
+    padding: clamp(8px, 1.2vh, 12px);
+    background: #000;
+    border: 1px solid #0f0;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(4px, 0.8vh, 8px);
+}
+
+#characterMessages img, #sceneMessages img {
+    max-width: 100%;
+    border-radius: 8px;
+    border: 2px solid #0f0;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.save-single-btn {
+    display: block;
+    width: 80%;
+    margin: clamp(8px, 1.2vh, 12px) auto 0 auto;
+    background: #333;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: clamp(6px, 0.8vh, 8px) clamp(10px, 1.5vw, 15px);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-size: clamp(11px, 1.5vw, 13px);
+}
+
+.save-single-btn:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 12px #0f0;
+}
+
+#characterInputArea, #sceneInputArea {
+    display: flex;
+    gap: clamp(6px, 1vw, 12px);
+}
+
+#characterInput, #sceneInput {
+    flex: 1;
+    padding: clamp(8px, 1.2vh, 12px);
+    background: #222;
+    color: #0f0;
+    border: 2px solid #0f0;
+    border-radius: 8px;
+    font-size: clamp(13px, 1.7vw, 16px);
+}
+
+#characterSend, #sceneSend {
+    padding: clamp(8px, 1.2vh, 12px) clamp(16px, 2.5vw, 28px);
+    background: #333;
+    color: #0f0;
+    border: 2px solid #0f0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: clamp(13px, 1.7vw, 16px);
+    transition: all 0.3s ease;
+}
+
+#characterSend:hover, #sceneSend:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 15px #0f0;
+}
+
+/* Ensure clickable elements work */
+.asset-icon, #diceRoller img, .sidebar-btn, #saveButton, #saveListItems button, .save-actions button, .save-single-btn, #chatSend, #characterSend, #sceneSend {
+    pointer-events: auto !important;
+    z-index: inherit;
+}
+
+/* Character Details Panel - base scaling (dynamic content) */
+#characterDetailsPanel {
+  overflow-x: hidden !important; /* Force no horizontal scroll */
+  overflow-y: auto;
+}
+
+#characterDetailsPanel.active {
+  display: flex;
+  flex-direction: column;
+}
+
+#characterDetailsPanel > div {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(6px, 1vh, 12px);
+}
+
+#characterDetailsPanel input,
+#characterDetailsPanel textarea {
+    width: 100% !important;
+    box-sizing: border-box;
+    padding: clamp(6px, 1vh, 10px);
+    background: #222;
+    color: #0f0;
+    border: 1px solid #0f0;
+    border-radius: 5px;
+    font-size: clamp(12px, 1.6vw, 15px);
+}
+
+#characterDetailsPanel textarea {
+    height: clamp(60px, 10vh, 80px);
+    resize: vertical;
+}
+
+#characterDetailsPanel button {
+    width: auto;
+    align-self: center;
+    padding: clamp(6px, 1vh, 10px) clamp(12px, 2vw, 20px);
+    font-size: clamp(12px, 1.6vw, 14px);
+    margin: clamp(4px, 0.8vh, 8px) 0;
+}
+
+#characterDetailsPanel h3 {
+    font-size: clamp(15px, 2vw, 18px);
+    margin: clamp(8px, 1.2vh, 16px) 0;
+    text-align: center;
+}
+
+#characterDetailsPanel img {
+    width: clamp(120px, 30vw, 192px);
+    height: clamp(120px, 30vw, 192px);
+    object-fit: contain;
+    align-self: center;
+}
+
+/* Size buttons row */
+#characterDetailsPanel div[style*="display: flex"][style*="gap: 8px"] {
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Fade chat when any other panel is open */
+#characterGenPanel.active ~ #rightPanel,
+#sceneGenPanel.active ~ #rightPanel,
+#assetsPanel.active ~ #rightPanel,
+#dicePanel.active ~ #rightPanel,
+#savePanelContainer.active ~ #rightPanel,
+#characterDetailsPanel.active ~ #rightPanel,
+#multiplayerPanel.active ~ #rightPanel {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* Ensure chat returns to full opacity when no other panel is active */
+#rightPanel {
+    pointer-events: auto;
+}
+@keyframes shake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-5px, -5px) rotate(-5deg); }
+  20% { transform: translate(5px, -5px) rotate(5deg); }
+  30% { transform: translate(-5px, 5px) rotate(-5deg); }
+  40% { transform: translate(5px, 5px) rotate(5deg); }
+  50% { transform: translate(-5px, -5px) rotate(-5deg); }
+  60% { transform: translate(5px, -5px) rotate(5deg); }
+  70% { transform: translate(-5px, 5px) rotate(-5deg); }
+  80% { transform: translate(5px, 5px) rotate(5deg); }
+  90% { transform: translate(-5px, -5px) rotate(-5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes shake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-5px, -5px) rotate(-5deg); }
+  20% { transform: translate(5px, -5px) rotate(5deg); }
+  30% { transform: translate(-5px, 5px) rotate(-5deg); }
+  40% { transform: translate(5px, 5px) rotate(5deg); }
+  50% { transform: translate(-5px, -5px) rotate(-5deg); }
+  60% { transform: translate(5px, -5px) rotate(5deg); }
+  70% { transform: translate(-5px, 5px) rotate(-5deg); }
+  80% { transform: translate(5px, 5px) rotate(5deg); }
+  90% { transform: translate(-5px, -5px) rotate(-5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+#diceRoller img.rolling {
+  animation: shake 0.8s ease-in-out;
+}
+/* Multiplayer Panel Styles */
+#multiplayerPanel {
+  padding: 20px;
+}
+
+#multiplayerPanel h2 {
+  color: #0f0;
+  text-align: center;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px #0f0;
+}
+
+.mp-btn {
+  background: #000;
+  color: #0f0;
+  border: 2px solid #0f0;
+  padding: 10px 20px;
+  margin: 5px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.mp-btn:hover {
+  background: #0f0;
+  color: #000;
+  box-shadow: 0 0 15px #0f0;
+}
+
+#multiplayerMenu {
+  text-align: center;
+}
+
+#roomCodeInput {
+  background: #000;
+  color: #0f0;
+  border: 2px solid #0f0;
+  padding: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+#roomCodeInput:focus {
+  outline: none;
+  box-shadow: 0 0 10px #0f0;
+}
+
+#multiplayerStatus {
+  text-align: center;
+  color: #0f0;
+}
+
+#currentRoomCode {
+  display: block;
+  margin: 10px 0;
+  font-size: 2em;
+  letter-spacing: 5px;
+  text-shadow: 0 0 15px #0f0;
+}
+
+#connectionStatus {
+  color: #0f0;
+  font-weight: bold;
+}

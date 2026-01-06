@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D&D Pixel Grid Map</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="characterDetailsPanel"></div>
+  <canvas id="gameCanvas"></canvas>
+
+    <div id="leftSidebar">
+    <button id="btnCharacterGen" class="sidebar-btn">Character</button>
+    <button id="btnSceneGen" class="sidebar-btn">Scene</button>
+    <button id="btnAssets" class="sidebar-btn">Assets</button>
+    <button id="btnDice" class="sidebar-btn">Dice</button>
+    <button id="btnSave" class="sidebar-btn">Save</button>
+    <button id="btnMultiplayer" class="sidebar-btn">Multiplayer</button>
+  </div>
+
+  <!-- Reused file input for all character uploads -->
+  <input type="file" id="characterFileUpload" accept="image/*" style="display: none;">
+
+  <input type="file" id="sceneFileUpload" accept="image/*" style="display: none;">
+
+    <div id="assetsPanel" class="side-panel">
+    <div id="assetsContainer" style="display: flex; flex-direction: column; height: 100%; gap: clamp(10px, 2vh, 20px);">
+      <div id="charactersRow" class="asset-row" style="flex: 1; overflow-y: auto;">
+        <h4>Characters</h4>
+      </div>
+      <div id="sceneryRow" class="asset-row" style="flex: 1; overflow-y: auto;">
+        <h4>Scenes</h4>
+      </div>
+      <div id="npcRow" class="asset-row" style="flex: 1; overflow-y: auto;">
+        <h4>NPCs</h4>
+      </div>
+    </div>
+  </div>
+
+  <div id="dicePanel" class="side-panel">
+    <div id="diceRoller"></div>
+  </div>
+
+  <div id="savePanelContainer" class="side-panel">
+    <div id="savePanel">
+      <button id="saveButton">Save Game</button>
+      <div id="saveList">
+        <h3>Previous Saves</h3>
+        <ul id="saveListItems"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="rightPanel">
+    <div id="chatContainer"></div>
+  </div>
+
+  <div id="characterGenPanel"></div>
+  <div id="sceneGenPanel"></div>
+
+  <!-- Multiplayer Panel -->
+  <div id="multiplayerPanel" class="side-panel">
+    <h2>Multiplayer</h2>
+    <div id="multiplayerMenu">
+      <button id="btnHostGame" class="mp-btn">Host Game</button>
+      <div style="margin: 10px 0;">
+        <input type="text" id="roomCodeInput" placeholder="Enter Room Code" maxlength="6" style="width: 150px; padding: 5px;">
+        <button id="btnJoinGame" class="mp-btn">Join Game</button>
+      </div>
+    </div>
+    <div id="multiplayerStatus" style="margin-top: 20px; display: none;">
+      <p>Room Code: <span id="currentRoomCode" style="font-size: 1.5em; font-weight: bold;"></span></p>
+      <p>Status: <span id="connectionStatus">Connected</span></p>
+      <button id="btnLeaveGame" class="mp-btn">Leave Game</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

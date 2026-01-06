@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: dnd-grid-game
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: VENICE_API_KEY
+        sync: false
