@@ -1175,34 +1175,38 @@ function createDiceRoller() {
   row.style.flexWrap = 'wrap';
 
   const dice = [
-    { sides: 4, file: 'd4.png' },
-    { sides: 6, file: 'd6.png' },
-    { sides: 8, file: 'd8.png' },
-    { sides: 10, file: 'd10.png' },
-    { sides: 12, file: 'd12.png' },
-    { sides: 20, file: 'd20.png' }
+    { sides: 4, label: 'D4' },
+    { sides: 6, label: 'D6' },
+    { sides: 8, label: 'D8' },
+    { sides: 10, label: 'D10' },
+    { sides: 12, label: 'D12' },
+    { sides: 20, label: 'D20' }
   ];
   dice.forEach(d => {
-    const img = document.createElement('img');
-    img.src = `assets/Dice/${d.file}`;
-    img.style.width = '64px';
-    img.style.height = '64px';
-    img.style.cursor = 'pointer';
-    img.style.border = '2px solid #0f0';
-    img.style.borderRadius = '8px';
-    img.onclick = () => {
+    const btn = document.createElement('button');
+    btn.textContent = d.label;
+    btn.style.width = '64px';
+    btn.style.height = '64px';
+    btn.style.cursor = 'pointer';
+    btn.style.border = '2px solid #0f0';
+    btn.style.borderRadius = '8px';
+    btn.style.background = '#222';
+    btn.style.color = '#0f0';
+    btn.style.fontSize = '18px';
+    btn.style.fontWeight = 'bold';
+    btn.onclick = () => {
       const roll = Math.floor(Math.random() * d.sides) + 1;
       result.textContent = roll;
       result.style.color = '#fff';
       setTimeout(() => result.style.color = '#ff0', 200);
 
-      // Make THIS specific die image shake
-      img.classList.add('rolling');
-      img.addEventListener('animationend', () => {
-        img.classList.remove('rolling');
+      // Make THIS specific die button shake
+      btn.classList.add('rolling');
+      btn.addEventListener('animationend', () => {
+        btn.classList.remove('rolling');
       }, { once: true });
     };
-    row.appendChild(img);
+    row.appendChild(btn);
   });
 
   container.appendChild(row);
