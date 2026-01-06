@@ -315,6 +315,92 @@ function createSavePanel() {
 
   panel.appendChild(saveBtn);
 
+  // Export Data Button
+  const exportBtn = document.createElement('button');
+  exportBtn.textContent = 'Export All Data';
+  exportBtn.style.marginTop = '10px';
+  exportBtn.onclick = function() {
+    const exportData = {
+      saves: JSON.parse(localStorage.getItem(SAVES_KEY) || '[]'),
+      characterAssets: JSON.parse(localStorage.getItem(CHARACTER_STORAGE_KEY) || '[]'),
+      sceneAssets: JSON.parse(localStorage.getItem(SCENE_STORAGE_KEY) || '[]'),
+      npcPrompts: JSON.parse(localStorage.getItem(NPC_PROMPTS_KEY) || '[]'),
+      characterSheets: JSON.parse(localStorage.getItem(CHARACTER_SHEETS_KEY) || '{}'),
+      questLog: questLog,
+      exportDate: new Date().toISOString()
+    };
+
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `dnd-game-backup-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    alertStyled('Data exported successfully!');
+  };
+  panel.appendChild(exportBtn);
+
+  // Import Data Button
+  const importBtn = document.createElement('button');
+  importBtn.textContent = 'Import Data';
+  importBtn.style.marginTop = '10px';
+  importBtn.onclick = function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const importData = JSON.parse(event.target.result);
+
+          // Validate the data structure
+          if (!importData.exportDate) {
+            alertStyled('Invalid backup file format');
+            return;
+          }
+
+          // Import all data
+          if (importData.saves) {
+            localStorage.setItem(SAVES_KEY, JSON.stringify(importData.saves));
+          }
+          if (importData.characterAssets) {
+            localStorage.setItem(CHARACTER_STORAGE_KEY, JSON.stringify(importData.characterAssets));
+            characterAssets = importData.characterAssets;
+          }
+          if (importData.sceneAssets) {
+            localStorage.setItem(SCENE_STORAGE_KEY, JSON.stringify(importData.sceneAssets));
+            sceneAssets = importData.sceneAssets;
+          }
+          if (importData.npcPrompts) {
+            localStorage.setItem(NPC_PROMPTS_KEY, JSON.stringify(importData.npcPrompts));
+            npcPromptAssets = importData.npcPrompts;
+          }
+          if (importData.characterSheets) {
+            localStorage.setItem(CHARACTER_SHEETS_KEY, JSON.stringify(importData.characterSheets));
+          }
+          if (importData.questLog) {
+            questLog = importData.questLog;
+          }
+
+          alertStyled('Data imported successfully! Refresh the page to see all changes.');
+          updateSaveList();
+          updateAssetPanel();
+        } catch (err) {
+          alertStyled('Error importing data: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+  panel.appendChild(importBtn);
+
   const listDiv = document.createElement('div');
   listDiv.id = 'saveList';
 
